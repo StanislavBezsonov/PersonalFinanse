@@ -37,6 +37,7 @@ class UserManager {
     func logout() {
         currentUser = nil
         UserDefaults.standard.removeObject(forKey: userDefaultsKey)
+        UserDefaults.standard.synchronize()
         TransactionManager.shared.removeAllTransactions()
     }
 }

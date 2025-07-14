@@ -161,7 +161,9 @@ extension AddExpenseViewController: AddExpenseKeyboardDelegate, AddExpenseDateVi
     
     func didTapKey(_ key: String) {
         if key == "." {
-            if amountInput.textField.text?.contains(".") == true { return }
+            guard let text = amountInput.textField.text, !text.isEmpty, !text.contains(".") else {
+                return
+            }
         }
         amountInput.textField.text? += key
     }
