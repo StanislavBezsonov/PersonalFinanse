@@ -25,6 +25,7 @@ class MonthlyTopCategoriesSection: UITableViewHeaderFooterView {
         setupViews()
     }
     
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -34,7 +35,6 @@ class MonthlyTopCategoriesSection: UITableViewHeaderFooterView {
         hStack.axis = .horizontal
         hStack.distribution = .fill
         hStack.alignment = .center
-        hStack.spacing = 8
         
         hStack.addArrangedSubview(monthLabel)
         hStack.addArrangedSubview(totalAmountLabel)

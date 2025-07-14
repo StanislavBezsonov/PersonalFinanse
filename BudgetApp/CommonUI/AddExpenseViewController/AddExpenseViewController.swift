@@ -82,7 +82,6 @@ class AddExpenseViewController: UIViewController {
             topStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             topStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             topStackView.bottomAnchor.constraint(lessThanOrEqualTo: customKeyboard.topAnchor, constant: -16),
-
             
             customKeyboard.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             customKeyboard.trailingAnchor.constraint(equalTo: view.trailingAnchor),

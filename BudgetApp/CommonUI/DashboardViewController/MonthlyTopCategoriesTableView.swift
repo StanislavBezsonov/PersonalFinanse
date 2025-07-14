@@ -76,16 +76,12 @@ class MonthlyTopCategoriesTableView: UITableView, UITableViewDataSource, UITable
         return header
     }
     
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 36
-    }
-    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let month = monthlyData[indexPath.section]
         monthDelegate?.didSelectMonth(month)
         tableView.deselectRow(at: indexPath, animated: true)
     }
-            
+                
     @objc private func headerTapped(_ gestureRecognizer: UITapGestureRecognizer) {
         guard let headerView = gestureRecognizer.view else { return }
         let section = headerView.tag
