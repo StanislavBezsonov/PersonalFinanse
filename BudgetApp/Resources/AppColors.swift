@@ -32,7 +32,6 @@ enum ChartColors {
         .systemOrange,
         .systemYellow,
         .systemGreen,
-        .systemPink,
         .brown,
         .magenta,
         UIColor(red: 0.0, green: 0.7, blue: 0.7, alpha: 1),

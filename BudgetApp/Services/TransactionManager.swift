@@ -1,4 +1,6 @@
 import Foundation
+import Firebase
+import FirebaseCore
 
 
 class TransactionManager {
@@ -7,6 +9,10 @@ class TransactionManager {
     private let transactionsKey = "transactionsKey"
     
     private var transactions: [Transaction] = []
+    
+    var isUsingRemote: Bool {
+        UserManager.shared.currentUser?.source == .remote
+    }
        
     private init() {
         loadTransactions()
@@ -19,6 +25,10 @@ class TransactionManager {
     func addTransaction(_ transaction: Transaction) {
         transactions.append(transaction)
         saveTransactions()
+        
+        if isUsingRemote {
+            saveTransactionToFirebase(transaction)
+        }
     }
     
     func removeTransaction(withId id: String) {
@@ -38,6 +48,69 @@ class TransactionManager {
             saveTransactions()
         }
     }
+    
+    private func saveTransactionToFirebase(_ transaction: Transaction) {
+        let data: [String: Any] = [
+            "id": transaction.id,
+            "userID": transaction.userID,
+            "amount": transaction.amount,
+            "date": Timestamp(date: transaction.date),
+            "category": transaction.category.dictionaryRepresentation(),
+            "details": transaction.details ?? "",
+            "type": transaction.type.rawValue
+        ]
+        
+        Firestore.firestore()
+            .collection("transactions")
+            .document(transaction.id)
+            .setData(data) { error in
+                if let error = error {
+                    print("Failed to save transaction to Firebase: \(error.localizedDescription)")
+                }
+            }
+    }
+    
+    func loadRemoteTransactions(for userID: String, completion: @escaping () -> Void) {
+        Firestore.firestore()
+            .collection("transactions")
+            .whereField("userID", isEqualTo: userID)
+            .getDocuments { snapshot, error in
+                guard let docs = snapshot?.documents, error == nil else {
+                    print("Failed to fetch remote transactions: \(error?.localizedDescription ?? "unknown error")")
+                    completion()
+                    return
+                }
+
+                self.transactions = docs.compactMap { doc -> Transaction? in
+                    let data = doc.data()
+                    guard
+                        let id = data["id"] as? String,
+                        let userID = data["userID"] as? String,
+                        let amount = data["amount"] as? Double,
+                        let date = (data["date"] as? Timestamp)?.dateValue(),
+                        let categoryDict = data["category"] as? [String: Any],
+                        let category = Category(dictionary: categoryDict),
+                        let typeRaw = data["type"] as? String,
+                        let type = TransactionType(rawValue: typeRaw)
+                    else {
+                        return nil
+                    }
+
+                    return Transaction(
+                        id: id,
+                        userID: userID,
+                        amount: amount,
+                        date: date,
+                        category: category,
+                        details: data["details"] as? String,
+                        type: type
+                    )
+                }
+
+                completion()
+            }
+    }
+
     
     func totalExpensesByCategory() -> [String: Double] {
         let expenses = transactions.filter { $0.type == .expense }

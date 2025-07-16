@@ -44,7 +44,7 @@ class SettingsViewController: UIViewController {
     func handleLogout() {
         UserManager.shared.logout()
         if let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate {
-            sceneDelegate.showLogin()
+            NotificationCenter.default.post(name: .userDidLogout, object: nil)
         }
     }
 }

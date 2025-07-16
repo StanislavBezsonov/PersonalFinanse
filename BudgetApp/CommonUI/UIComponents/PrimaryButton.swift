@@ -6,6 +6,11 @@ final class PrimaryButton: UIButton {
         super.init(frame: frame)
         setupStyle()
     }
+    
+    convenience init(title: String){
+        self.init(frame: .zero)
+        setTitle(title, for: .normal)
+    }
 
     @available(*, unavailable)
     required init?(coder: NSCoder) {

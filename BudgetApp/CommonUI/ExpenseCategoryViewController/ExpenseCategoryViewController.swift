@@ -35,7 +35,6 @@ class ExpenseCategoryViewController: UIViewController {
         title = "Choose expense category"
         tabBarItem.title = "New expense"
         view.backgroundColor = AppColor.background.uiColor
-
         if gradientLayer.superlayer == nil {
             view.layer.insertSublayer(gradientLayer, at: 0)
         }
