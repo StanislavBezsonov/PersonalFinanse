@@ -110,7 +110,6 @@ class AddExpenseViewController: UIViewController {
         }
         
         guard let userID = UserManager.shared.currentUser?.id else {
-            print("No current user")
             return
         }
         

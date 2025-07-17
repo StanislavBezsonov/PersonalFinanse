@@ -10,7 +10,6 @@ struct Category: Codable, Equatable {
 extension Category {
     var icon: UIImage? {
         guard let image = ImageStorageManager.shared.loadImage(from: iconName) else {
-            print("Icon not found for category: \(name)")
             return nil
         }
         return image

@@ -39,7 +39,6 @@ class TransactionManager {
     func removeAllTransactions() {
         transactions.removeAll()
         saveTransactions()
-        print("All transactions removed and saved as empty array")
     }
     
     func updateTransaction(_ updatedTransaction: Transaction) {
