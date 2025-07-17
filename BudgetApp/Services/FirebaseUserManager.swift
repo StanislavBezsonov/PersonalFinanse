@@ -31,7 +31,7 @@ final class FirebaseUserManager {
                 id: uid,
                 name: email,
                 gender: gender,
-                photoPath: "",
+                photoPath: nil,
                 email: email,
                 categories: DefaultCategories.all,
                 source: .remote
@@ -63,13 +63,14 @@ final class FirebaseUserManager {
                 let name = data["name"] as? String,
                 let genderRaw = data["gender"] as? String,
                 let gender = Gender(rawValue: genderRaw),
-                let photoPath = data["photoPath"] as? String,
                 let email = data["email"] as? String,
                 let categoriesArray = data["categories"] as? [[String: Any]]
             else {
                 completion(.failure(NSError(domain: "ParseError", code: -1, userInfo: nil)))
                 return
             }
+
+            let photoPath = data["photoPath"] as? String
 
             let categories = categoriesArray.compactMap { Category(dictionary: $0) }
 
@@ -87,15 +88,18 @@ final class FirebaseUserManager {
         }
     }
 
+
     private func saveUserToFirestore(_ user: User, completion: @escaping (Bool) -> Void) {
-        let categoriesDictArray = user.categories.map { $0.dictionaryRepresentation() }
-        let userData: [String: Any] = [
+        var userData: [String: Any] = [
             "name": user.name,
             "gender": user.gender.rawValue,
-            "photoPath": user.photoPath,
             "email": user.email,
-            "categories": categoriesDictArray
+            "categories": user.categories.map { $0.dictionaryRepresentation() }
         ]
+
+        if let photoPath = user.photoPath {
+            userData["photoPath"] = photoPath
+        }
 
         firestore.collection("users").document(user.id).setData(userData) { error in
             completion(error == nil)

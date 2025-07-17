@@ -143,10 +143,6 @@ final class LocalLoginViewController: UIViewController {
             let tabBarController = MainTabBarController()
             sceneDelegate.window?.rootViewController = tabBarController
             sceneDelegate.window?.makeKeyAndVisible()
-            guard let window = sceneDelegate.window else { return }
-            UIView.transition(with: window, duration: 0.5, options: .transitionFlipFromRight, animations: {
-                window.rootViewController = tabBarController
-            }, completion: nil)
         }
     }
     

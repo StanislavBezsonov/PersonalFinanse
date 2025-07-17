@@ -16,20 +16,36 @@ class DashboardViewController: UIViewController, MonthlyTopCategoriesTableViewDe
     private let monthlyTableView = MonthlyTopCategoriesTableView()
     private let gradientLayer = AppGradientColor.background.gradientLayer
 
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+
         monthlyTableView.monthDelegate = self
-        setupLayout()
+
+        if UserManager.shared.currentUser?.source == .remote,
+           let userID = UserManager.shared.currentUser?.id {
+            
+            LoadingSpinnerView.shared.show(on: view)
+
+            TransactionManager.shared.loadRemoteTransactions(for: userID) { [weak self] in
+                DispatchQueue.main.async {
+                    LoadingSpinnerView.shared.hide()
+                    self?.setupLayout()
+                    self?.reloadDashboardData()
+                    self?.animateViews()
+                }
+            }
+        } else {
+            setupLayout()
+            reloadDashboardData()
+            animateViews()
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.setNavigationBarHidden(true, animated: false)
-        let categorySums = TransactionManager.shared.totalExpensesByCategoryForCurrentMonth()
-        chartView.updateData(categorySums: categorySums)
-
-        let lastTwelveMonthsData = TransactionManager.shared.lastTwelveMonthsTopCategories()
-        monthlyTableView.updateData(lastTwelveMonthsData)
+        reloadDashboardData()
     }
     
     override func viewDidLayoutSubviews() {
@@ -43,13 +59,11 @@ class DashboardViewController: UIViewController, MonthlyTopCategoriesTableViewDe
             view.layer.insertSublayer(gradientLayer, at: 0)
         }
 
-        view.addSubview(titleLabel)
-        view.addSubview(chartView)
-        view.addSubview(monthlyTableView)
-        
-        chartView.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        monthlyTableView.translatesAutoresizingMaskIntoConstraints = false
+        [titleLabel, chartView, monthlyTableView].forEach {
+            $0.alpha = 0
+            view.addSubview($0)
+            $0.translatesAutoresizingMaskIntoConstraints = false
+        }
 
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
@@ -65,6 +79,22 @@ class DashboardViewController: UIViewController, MonthlyTopCategoriesTableViewDe
             monthlyTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             monthlyTableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
+    }
+    
+    private func reloadDashboardData() {
+        let categorySums = TransactionManager.shared.totalExpensesByCategoryForCurrentMonth()
+        chartView.updateData(categorySums: categorySums)
+
+        let lastTwelveMonthsData = TransactionManager.shared.lastTwelveMonthsTopCategories()
+        monthlyTableView.updateData(lastTwelveMonthsData)
+    }
+    
+    private func animateViews() {
+        UIView.animate(withDuration: 1) {
+            self.titleLabel.alpha = 1
+            self.chartView.alpha = 1
+            self.monthlyTableView.alpha = 1
+        }
     }
     
     func didSelectMonth(_ monthData: MonthlyData) {

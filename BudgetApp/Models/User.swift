@@ -1,6 +1,27 @@
 import Foundation
 import UIKit
 
+enum DefaultAvatar {
+    case male
+    case female
+
+    var image: UIImage? {
+        switch self {
+        case .male:
+            return UIImage(named: "man_icon")
+        case .female:
+            return UIImage(named: "woman_icon")
+        }
+    }
+    
+    static func image(for gender: Gender) -> UIImage? {
+        switch gender {
+        case .male: return DefaultAvatar.male.image
+        case .female: return DefaultAvatar.female.image
+        }
+    }
+}
+
 enum Gender: String, Codable {
     case male
     case female
@@ -15,7 +36,7 @@ struct User: Codable {
     let id: String
     var name: String
     var gender: Gender
-    var photoPath: String
+    var photoPath: String?
     var email: String
     let categories: [Category]
     let source: UserSource
@@ -23,14 +44,19 @@ struct User: Codable {
 
 extension User {
     var avatarImage: UIImage? {
-        if photoPath.starts(with: "http") {
-            if let url = URL(string: photoPath),
-               let data = try? Data(contentsOf: url) {
-                return UIImage(data: data)
-            }
-        } else {
-            return ImageStorageManager.shared.loadImage(from: photoPath)
+        if let path = photoPath, path.starts(with: "http"),
+           let url = URL(string: path),
+           let data = try? Data(contentsOf: url),
+           let image = UIImage(data: data) {
+            return image
         }
-        return nil
+
+        if let path = photoPath, !path.isEmpty,
+           let image = ImageStorageManager.shared.loadImage(from: path) {
+            return image
+        }
+
+        return DefaultAvatar.image(for: gender)
     }
 }
+

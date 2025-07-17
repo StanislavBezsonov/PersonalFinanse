@@ -1,4 +1,5 @@
 import Foundation
+import FirebaseAuth
 
 class UserManager {
     static let shared = UserManager()
@@ -34,10 +35,32 @@ class UserManager {
         }
     }
     
-    func logout() {
-        currentUser = nil
-        UserDefaults.standard.removeObject(forKey: userDefaultsKey)
-        UserDefaults.standard.synchronize()
-        TransactionManager.shared.removeAllTransactions()
+    func logout(completion: (() -> Void)? = nil) {
+        LoadingSpinnerView.shared.show()
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            let userSource = UserManager.shared.currentUser?.source
+            print("Logging out user with source: \(String(describing: userSource))")
+
+            if userSource == .remote {
+                do {
+                    try Auth.auth().signOut()
+                    print("Firebase signOut successful")
+                } catch {
+                    print("Logout error: \(error)")
+                }
+            }
+
+            DispatchQueue.main.async {
+                UserManager.shared.currentUser = nil
+                UserDefaults.standard.removeObject(forKey: UserManager.shared.userDefaultsKey)
+                UserDefaults.standard.synchronize()
+                TransactionManager.shared.removeAllTransactions()
+
+                LoadingSpinnerView.shared.hide()
+                completion?()
+            }
+        }
     }
+
 }

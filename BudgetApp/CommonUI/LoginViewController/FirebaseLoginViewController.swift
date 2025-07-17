@@ -149,13 +149,19 @@ final class FirebaseLoginViewController: UIViewController {
         }
 
         Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
+            guard let self = self else { return }
+            
+            LoadingSpinnerView.shared.show()
+
             if let error = error {
-                self?.showAlert("Login failed: \(error.localizedDescription)")
+                LoadingSpinnerView.shared.hide()
+                self.showAlert("Login failed: \(error.localizedDescription)")
                 return
             }
             
             guard let uid = result?.user.uid else {
-                self?.showAlert("User ID not found after login.")
+                LoadingSpinnerView.shared.hide()
+                self.showAlert("User ID not found after login.")
                 return
             }
             
@@ -166,17 +172,20 @@ final class FirebaseLoginViewController: UIViewController {
                     
                     TransactionManager.shared.loadRemoteTransactions(for: user.id) {
                         DispatchQueue.main.async {
-                            self?.onLoginSuccess?()
+                            LoadingSpinnerView.shared.hide()
+                            self.onLoginSuccess?()
                         }
                     }
 
                 case .failure(let error):
-                    break
+                    DispatchQueue.main.async {
+                        LoadingSpinnerView.shared.hide()
+                        self.showAlert("Failed to fetch user: \(error.localizedDescription)")
+                    }
                 }
             }
         }
     }
-
 
     @objc private func handleSignUp() {
         let signUpVC = FirebaseSignUpViewController()

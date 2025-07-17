@@ -95,13 +95,22 @@ final class FirebaseSignUpViewController: UIViewController {
             showAlert("Password must be at least 6 characters.")
             return
         }
+        
+        LoadingSpinnerView.shared.show()
 
-        FirebaseUserManager.shared.signUp(email: email, password: password, gender: genderSelector.selectedGender) { [weak self] result in
+        FirebaseUserManager.shared.signUp(
+            email: email,
+            password: password,
+            gender: genderSelector.selectedGender,
+        ) { [weak self] result in
             DispatchQueue.main.async {
+                LoadingSpinnerView.shared.hide()
+                
                 switch result {
                 case .success(let user):
                     UserManager.shared.currentUser = user
                     self?.navigationController?.popToRootViewController(animated: true)
+                    
                 case .failure(let error):
                     self?.showAlert("Signup failed: \(error.localizedDescription)")
                 }
@@ -109,31 +118,6 @@ final class FirebaseSignUpViewController: UIViewController {
         }
     }
     
-    private func uploadAvatarImage(_ image: UIImage, forUID uid: String, completion: @escaping (String?) -> Void) {
-        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
-            completion(nil)
-            return
-        }
-        let storageRef = Storage.storage().reference().child("avatars/\(uid).jpg")
-        let metadata = StorageMetadata()
-        metadata.contentType = "image/jpeg"
-
-        storageRef.putData(imageData, metadata: metadata) { metadata, error in
-            if let error = error {
-                print("Storage upload error:", error.localizedDescription)
-                completion(nil)
-                return
-            }
-            storageRef.downloadURL { url, error in
-                if let url = url {
-                    completion(url.absoluteString)
-                } else {
-                    completion(nil)
-                }
-            }
-        }
-    }
-
     @objc private func dismissKeyboard() {
         view.endEditing(true)
     }

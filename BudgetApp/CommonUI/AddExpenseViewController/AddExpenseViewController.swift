@@ -53,7 +53,8 @@ class AddExpenseViewController: UIViewController {
         view.backgroundColor = AppColor.background.uiColor
         view.layer.insertSublayer(gradientLayer, at: 0)
 
-        userCategoryView.setAvatar(photoPath: UserManager.shared.currentUser?.photoPath)
+        userCategoryView.setAvatar(photoPath: UserManager.shared.currentUser?.photoPath,
+                                   gender: UserManager.shared.currentUser?.gender ?? .male)
         guard let userCategories = UserManager.shared.currentUser?.categories else {
             return
         }

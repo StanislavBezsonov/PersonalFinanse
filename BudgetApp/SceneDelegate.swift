@@ -19,23 +19,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             object: nil
         )
         
-        if let localUser = UserManager.shared.currentUser {
+        if UserManager.shared.currentUser?.source == .local {
             showMainInterface()
         
         } else if let firebaseUser = Auth.auth().currentUser {
-            FirebaseUserManager.shared.fetchUser(withID: firebaseUser.uid) { [weak self] result in
-                switch result {
-                case .success(let user):
-                    UserManager.shared.currentUser = user
-                    DispatchQueue.main.async {
-                        self?.showMainInterface()
-                    }
-                case .failure:
-                    DispatchQueue.main.async {
-                        self?.showLogin()
-                    }
-                }
-            }
+            
+            self.showMainInterface()
         
         } else {
             showLogin()

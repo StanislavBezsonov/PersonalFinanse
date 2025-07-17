@@ -1,22 +1,43 @@
 import UIKit
 
-class LeftAlignedCollectionViewFlowLayout: UICollectionViewFlowLayout {
+class CenterAlignedCollectionViewFlowLayout: UICollectionViewFlowLayout {
     override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
-        guard let attributes = super.layoutAttributesForElements(in: rect) else { return nil }
+        guard let attributes = super.layoutAttributesForElements(in: rect)?.map({ $0.copy() as! UICollectionViewLayoutAttributes }) else {
+            return nil
+        }
 
-        var leftMargin = sectionInset.left
-        var maxY: CGFloat = -1.0
+        var rows: [[UICollectionViewLayoutAttributes]] = []
+        var currentRowY: CGFloat = -1
+        var currentRow: [UICollectionViewLayoutAttributes] = []
 
-        attributes.forEach { layoutAttribute in
-            if layoutAttribute.representedElementCategory == .cell {
-                if layoutAttribute.frame.origin.y >= maxY {
-                    leftMargin = sectionInset.left
+        for attr in attributes where attr.representedElementCategory == .cell {
+            if abs(attr.frame.origin.y - currentRowY) > 1 {
+                if !currentRow.isEmpty {
+                    rows.append(currentRow)
                 }
-                layoutAttribute.frame.origin.x = leftMargin
-                leftMargin += layoutAttribute.frame.width + minimumInteritemSpacing
-                maxY = max(layoutAttribute.frame.maxY, maxY)
+                currentRow = [attr]
+                currentRowY = attr.frame.origin.y
+            } else {
+                currentRow.append(attr)
             }
         }
+        if !currentRow.isEmpty {
+            rows.append(currentRow)
+        }
+
+        for row in rows {
+            let totalWidth = row.reduce(0) { $0 + $1.frame.width } +
+                             CGFloat(row.count - 1) * minimumInteritemSpacing
+            let collectionViewWidth = collectionView?.bounds.width ?? 0
+            let leftInset = max((collectionViewWidth - totalWidth) / 2, sectionInset.left)
+
+            var xOffset = leftInset
+            for attr in row {
+                attr.frame.origin.x = xOffset
+                xOffset += attr.frame.width + minimumInteritemSpacing
+            }
+        }
+
         return attributes
     }
 

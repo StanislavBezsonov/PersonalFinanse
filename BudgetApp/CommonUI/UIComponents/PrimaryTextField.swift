@@ -2,6 +2,11 @@ import UIKit
 
 final class PrimaryTextField: UITextField {
 
+    override var textContentType: UITextContentType! {
+        get { super.textContentType }
+        set { super.textContentType = newValue }
+    }
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupStyle()
@@ -20,10 +25,12 @@ final class PrimaryTextField: UITextField {
         self.layer.borderColor = AppColor.elementBorder.uiColor.cgColor
         self.textColor = AppColor.elementText.uiColor
         self.tintColor = AppColor.elementText.uiColor
-
+        autocorrectionType = .no
+        autocapitalizationType = .none
         setLeftPaddingPoints(12)
     }
 
+    
     private func setLeftPaddingPoints(_ amount: CGFloat) {
         let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: amount, height: 44))
         leftView = paddingView

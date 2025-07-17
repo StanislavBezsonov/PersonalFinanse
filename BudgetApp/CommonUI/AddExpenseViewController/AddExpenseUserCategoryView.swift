@@ -62,16 +62,16 @@ final class AddExpenseUserCategoryView: UIView {
         categoryImageView.layer.cornerRadius = categoryImageView.bounds.width / 2
     }
     
-    func setAvatar(photoPath: String?) {
+    func setAvatar(photoPath: String?, gender: Gender) {
         guard let photoPath = photoPath, !photoPath.isEmpty else {
-            avatarImageView.image = UIImage(systemName: "person.circle")
+            avatarImageView.image = DefaultAvatar.image(for: gender)
             return
         }
 
         if let image = ImageStorageManager.shared.loadImage(from: photoPath) {
             avatarImageView.image = image
         } else {
-            avatarImageView.image = UIImage(systemName: "person.circle")
+            avatarImageView.image = DefaultAvatar.image(for: gender)
         }
     }
     

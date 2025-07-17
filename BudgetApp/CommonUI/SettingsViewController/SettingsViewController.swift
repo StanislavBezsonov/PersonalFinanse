@@ -42,9 +42,10 @@ class SettingsViewController: UIViewController {
     }
     
     func handleLogout() {
-        UserManager.shared.logout()
-        if let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate {
-            NotificationCenter.default.post(name: .userDidLogout, object: nil)
+        UserManager.shared.logout(){
+            if let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate {
+                NotificationCenter.default.post(name: .userDidLogout, object: nil)
+            }
         }
     }
 }

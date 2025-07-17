@@ -56,9 +56,9 @@ class AvatarImageView: UIImageView {
     func updateImage(isMale: Bool) {
         self.isMale = isMale
         if !isCustomImage {
-            let imageName = isMale ? "man_icon" : "woman_icon"
+            let imageName = isMale ? DefaultAvatar.male.image: DefaultAvatar.female.image
             UIView.transition(with: self, duration: 0.25, options: .transitionCrossDissolve) {
-                self.image = UIImage(named: imageName)
+                self.image = imageName
             }
         }
     }
@@ -71,8 +71,8 @@ class AvatarImageView: UIImageView {
     }
     
     private func defaultImage() -> UIImage? {
-        let imageName = isMale ? "man_icon" : "woman_icon"
-        return UIImage(named: imageName)
+        let imageName = isMale ? DefaultAvatar.male.image: DefaultAvatar.female.image
+        return imageName
     }
     
     func resetToDefault() {
